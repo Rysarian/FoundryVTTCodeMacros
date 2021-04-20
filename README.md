@@ -1,4 +1,4 @@
-# FoundryVTTCodeMacros
+# FoundryVTT Code Macros
 Random macros I made or adjusted for use in my games.
 
 Feel free to use or adjust them as you wish.

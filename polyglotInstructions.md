@@ -11,7 +11,7 @@
     default:
         // Don't duplicate the value in case it's a not an array
         for (let lang of actor.data.data.description.languages.split(/[,;]/)) {
-            this.known_languages.add(lang);
+            this.known_languages.add(lang.trim());
         }
 
         // This condition is needed so an empty language is not loaded

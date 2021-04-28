@@ -52,7 +52,7 @@ async function main() {
             }
             if (location != "None") {
                 lookup = game.packs.get(location);
-                if (lookup != Null) {
+                if (lookup != null) {
                     index = await lookup.getIndex();
                     entry = index.find(i => i.name === item.name);
                     if (entry != null) {

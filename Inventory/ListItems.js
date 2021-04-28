@@ -52,15 +52,17 @@ async function main() {
             }
             if (location != "None") {
                 lookup = game.packs.get(location);
-                index = await lookup.getIndex();
-                entry = index.find(i => i.name === item.name);
-                if (entry != null) {
-                    found_item = await lookup.getEntry(entry._id);
-                    optionsText += `<tr><td>@Compendium[${location}.${found_item._id}]{${found_item.name}}</td><td>${found_item.data.price.value}</td></tr>`;
+                if (lookup != Null) {
+                    index = await lookup.getIndex();
+                    entry = index.find(i => i.name === item.name);
+                    if (entry != null) {
+                        found_item = await lookup.getEntry(entry._id);
+                        optionsText += `<tr><td>@Compendium[${location}.${found_item._id}]{${found_item.name}}</td><td>${found_item.data.price.value}</td></tr>`;
+                    }
                 } else {
                     optionsText += `<tr><td>${item.name}</td><td>${item.data.data.price.value}</td></tr>`;
                 }
-            } 
+            }
         }
     }
     //Send chat message

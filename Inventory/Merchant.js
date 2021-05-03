@@ -1,5 +1,13 @@
-async function addItem(count, type, search) {
-    let realActor, location, itemList, lookup;
+async function rollNum(length) {
+    //Random Number generator
+    let num = Math.floor(Math.random() * (length));
+    return num;
+}
+
+async function addItem(count, type, range, rarity, restrict, search) {
+    let realActor, location, lookup;
+    let itemList = [];
+
     //Check if linked token
     if (token.actor.data.token.actorLink) {
         realActor = game.actors.get(actor.id);
@@ -32,6 +40,16 @@ async function addItem(count, type, search) {
     //Get list of items to be selected
     if (search === "directory") {
         itemList = await game.items.filter(gear => gear.data.type === type);
+
+        if (range === "Below") {
+            itemList = await itemList.filter(gear => gear.data.data.rarity.value <= rarity);
+        } else {
+            itemList = await itemList.filter(gear => gear.data.data.rarity.value >= rarity);
+        }
+
+        if (!restrict) {
+            itemList = await itemList.filter(gear => gear.data.data.rarity.isrestricted === false);
+        }
     } else {
         if (location != "None") {
             lookup = game.packs.get(location);
@@ -44,11 +62,33 @@ async function addItem(count, type, search) {
         //Loop through list to pick random item to add to character
         for (let index = 0; index < count; index++) {
             let rolled_item;
-            let num = Math.floor(Math.random() * (itemList.length + 1));
+            
             if (search === "directory") {
+                let num = await rollNum(itemList.length);
                 rolled_item = itemList[num];
             } else {
-                rolled_item = await lookup.getEntry(itemList[num]._id);
+                let complete = false, loopNum = 0;
+                while (complete === false) {
+                    let num = await rollNum(itemList.length);
+                    let restrictCheck = true;
+                    rolled_item = await lookup.getEntry(itemList[num]._id);
+
+                    if(!restrict && rolled_item.data.rarity.isrestricted) {
+                        restrictCheck = false;
+                    }
+                    
+                    if(range === "Below") {
+                        complete = rolled_item.data.rarity.value <= rarity && restrictCheck;
+                    } else {
+                        complete = rolled_item.data.rarity.value >= rarity && restrictCheck;
+                    }
+                    
+                    //Failsafe check
+                    loopNum++;
+                    if(loopNum >= 50) {
+                        complete = true;
+                    }
+                }
             }
             await realActor.createOwnedItem(rolled_item);
         }
@@ -60,9 +100,26 @@ async function addItem(count, type, search) {
 
 let d = new Dialog({
     title: "Create Merchant",
-    content: `<p>Select Equipment Types and Amounts</p>
+    content: `<h2>Select Rarity</h2>
+    <div class="grid grid-4col">
+        <p>Rarity</p>
+        <input name="rarityNum" class="rarityNum" style="width:50%" type="number" placeholder="0" value="0"
+            data-dtype="String" />
+        <p>Include Restricted</p>
+        <input name="restCheck" class="restCheck" type="checkbox" />
+    </div>
     <div class="grid grid-2col">
-        <div class="flexbox">Location of Items
+        <p>Above or Below Rarity (Chosen Included)</p>
+        <select name="rarityRange" class="rarityRange">
+            <option value="Above">Above</option>
+            <option value="Below" selected>Below</option>
+        </select>
+    </div>
+    
+    <h2>Select Equipment Types and Amounts</h2>
+    <div class="grid grid-2col">
+        <div class="flexbox">
+            Location of Items
         </div>
         <select name="item-location" class="item-location-select">
             <option value="directory">Item Directory</option>
@@ -106,8 +163,10 @@ let d = new Dialog({
             callback: async (html) => {
                 if (canvas.tokens.controlled.length === 1) {
                     //Initialize all variables
-                    let weaponCheck, weaponCount, armourCheck, armourCount, gearCheck, gearCount, location;
+                    let weaponCheck, weaponCount, armourCheck, armourCount, gearCheck, gearCount;
                     let itemAttCheck, itemAttCount, shipAttCheck, shipAttCount, shipWeaponCheck, shipWeaponCount;
+                    let rarity, range, restCheck, location;
+
                     //Get all values before the dialog disappears
                     location = html.find(".item-location-select").val();
                     weaponCheck = document.querySelector("input.weaponCheck").checked;
@@ -122,6 +181,13 @@ let d = new Dialog({
                     shipAttCount = parseInt(html.find(".shipAttCount").val(), 10);
                     shipWeaponCheck = document.querySelector("input.shipWeaponCheck").checked;
                     shipWeaponCount = parseInt(html.find(".shipWeaponCount").val(), 10);
+                    rarity = parseInt(html.find(".rarityNum").val(), 10);
+                    range = html.find(".rarityRange").val();
+                    restCheck = document.querySelector("input.restCheck").checked;
+
+                    if (isNaN(rarity)) {
+                        rarity = 0;
+                    }
 
                     //Reapeated for each type
 
@@ -131,42 +197,47 @@ let d = new Dialog({
                     }
                     //If the box for the type was checked and the count is more than 0, get random items of the type
                     if (weaponCheck && weaponCount > 0) {
-                        await addItem(weaponCount, "weapon", location);
+                        await addItem(weaponCount, "weapon", range, rarity, restCheck, location);
                     }
+
 
                     if (isNaN(armourCount)) {
                         armourCount = 0;
                     }
                     if (armourCheck && armourCount > 0) {
-                        await addItem(armourCount, "armour", location);
+                        await addItem(armourCount, "armour", range, rarity, restCheck, location);
                     }
+
 
                     if (isNaN(gearCount)) {
                         gearCount = 0;
                     }
                     if (gearCheck && gearCount > 0) {
-                        await addItem(gearCount, "gear", location);
+                        await addItem(gearCount, "gear", range, rarity, restCheck, location);
                     }
+
 
                     if (isNaN(itemAttCount)) {
                         itemAttCount = 0;
                     }
                     if (itemAttCheck && itemAttCount > 0) {
-                        await addItem(itemAttCount, "itemattachment", location);
+                        await addItem(itemAttCount, "itemattachment", range, rarity, restCheck, location);
                     }
+
 
                     if (isNaN(shipAttCount)) {
                         shipAttCount = 0;
                     }
                     if (shipAttCheck && shipAttCount > 0) {
-                        await addItem(shipAttCount, "shipattachment", location);
+                        await addItem(shipAttCount, "shipattachment", range, rarity, restCheck, location);
                     }
+
 
                     if (isNaN(shipWeaponCount)) {
                         shipWeaponCount = 0;
                     }
                     if (shipWeaponCheck && shipWeaponCount > 0) {
-                        await addItem(shipWeaponCount, "shipweapon", location);
+                        await addItem(shipWeaponCount, "shipweapon", range, rarity, restCheck, location);
                     }
                 } else {
                     ui.notifications.warn('Please select a token.');

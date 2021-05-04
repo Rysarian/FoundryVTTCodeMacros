@@ -29,7 +29,7 @@ async function main() {
                 let baseDamage = (weapon.data.damage.adjusted) ? weapon.data.damage.value : weapon.data.damage.adjusted;
                 let extraDamage = message._roll.ffg.success;
                 let totalDamage = baseDamage + extraDamage;
-                let wounds = oldWounds + (totalDamage - leftoverSoak);
+                let wounds = (oldWounds + (totalDamage - leftoverSoak));
                 await targetToken.actor.update({"data.stats.wounds.value": wounds});
 
             } else {

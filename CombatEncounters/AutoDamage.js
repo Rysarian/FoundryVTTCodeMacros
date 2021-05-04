@@ -10,8 +10,8 @@ async function main() {
             let targets = message.user.targets;
             if (targets.size > 0) {
                 let targetToken = await canvas.tokens.get(targets.ids[0]);
-                let soak = targetToken.actor.data.data.stats.soak.value;
-                let oldWounds = targetToken.actor.data.data.stats.wounds.value;
+                let soak = parseInt(targetToken.actor.data.data.stats.soak.value);
+                let oldWounds = parseInt(targetToken.actor.data.data.stats.wounds.value);
                 let pierce = 0, breach = 0;
 
                 let pierceList = await weapon.data.itemmodifier.filter(w => w.name.toLowerCase() === "pierce");
@@ -26,11 +26,11 @@ async function main() {
 
                 let leftoverSoak = (soak - (pierce + breach));
                 leftoverSoak = (leftoverSoak < 0) ? 0 : leftoverSoak;
-                let baseDamage = (weapon.data.damage.adjusted) ? weapon.data.damage.value : weapon.data.damage.adjusted;
-                let extraDamage = message._roll.ffg.success;
-                let totalDamage = (baseDamage + extraDamage);
+                let baseDamage = (weapon.data?.damage?.adjusted) ? weapon.data.damage.adjusted : weapon.data.damage.value;
+                let extraDamage = parseInt(message._roll.ffg.success);
+                let totalDamage = parseInt(baseDamage + extraDamage);
                 let wounds = (oldWounds + (totalDamage - leftoverSoak));
-                await targetToken.actor.update({"data.stats.wounds.value": wounds});
+                await targetToken.actor.update({"data.stats.wounds.value": parseInt(wounds)});
 
             } else {
                 ui.notifications.info("No tokens targeted.");

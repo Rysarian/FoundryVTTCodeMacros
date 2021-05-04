@@ -24,11 +24,11 @@ async function main() {
                     breach = breachList[0].data.rank * 10;
                 }
 
-                let leftoverSoak = soak - (pierce + breach);
+                let leftoverSoak = (soak - (pierce + breach));
                 leftoverSoak = (leftoverSoak < 0) ? 0 : leftoverSoak;
                 let baseDamage = (weapon.data.damage.adjusted) ? weapon.data.damage.value : weapon.data.damage.adjusted;
                 let extraDamage = message._roll.ffg.success;
-                let totalDamage = baseDamage + extraDamage;
+                let totalDamage = (baseDamage + extraDamage);
                 let wounds = (oldWounds + (totalDamage - leftoverSoak));
                 await targetToken.actor.update({"data.stats.wounds.value": wounds});
 

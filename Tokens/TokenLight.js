@@ -11,7 +11,7 @@ const energyShield = { type: "energy", speed: 1, intensity: 1 };
 const lights = {
     none: {
         label: "None",
-        data: { dimLight: 0, brightLight: 0, lightAngle: 360, lightAnimation: { type: "none" }  }
+        data: { dimLight: 0, brightLight: 0, lightAngle: 360, lightAnimation: { type: "none" } }
     },
     low: {
         label: "Low",
@@ -42,21 +42,20 @@ function getLights() {
             label: light.label,
             callback: (html) => {
                 const newColor = html.find("#color").val();
-                const newAlpha = parseFloat(html.find("#alpha").val()).toFixed(1);
+                let newAlpha = +(parseFloat(html.find("#alpha").val()).toFixed(1));
                 var data = light.data;
                 tokens.forEach(t => {
-                    canvas.scene.updateEmbeddedDocuments("Token", [{_id: t.id, lightColor: newColor, lightAlpha: 1, 
-                        dimLight: data.dimLight, brightLight: data.brightLight, lightAngle: data.lightAngle, 
-                        lightAnimation: data.lightAnimation}]);
+                    canvas.scene.updateEmbeddedDocuments("Token", [{
+                        _id: t.id, lightColor: newColor, lightAlpha: newAlpha,
+                        dimLight: data.dimLight, brightLight: data.brightLight, lightAngle: data.lightAngle,
+                        lightAnimation: data.lightAnimation
+                    }]);
                 });
-                
                 dialogEditor.render(true);
             }
         }
     });
-
     lightButtons = Object.assign(lightButtons);
-
     return lightButtons;
 }
 

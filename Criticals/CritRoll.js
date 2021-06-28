@@ -22,10 +22,10 @@ if (actor) {
         //check to see if the character has the Durable talent
         var durableTalent = realActor.items.filter(item => item.data.name.toLowerCase() === "durable");
         //If the talent is found multiply it by 10 for the roll
-        if(durableTalent.length > 0) {
+        if (durableTalent.length > 0) {
             durableRank = durableTalent[0].data.data.ranks.current * 10;
         }
-        
+
     } else {
         var realActor = token.actor;
         //Count the number of injuries the token already has
@@ -33,8 +33,8 @@ if (actor) {
         //check to see if the token has the Durable talent
         var durableTalent = token.actor.items.filter(item => item.data.name.toLowerCase() === "durable");
         //If the talent is found multiply it by 10 for the roll
-        if(durableTalent.length > 0) {
-        durableRank = durableTalent[0].data.data.ranks.current * 10;
+        if (durableTalent.length > 0) {
+            durableRank = durableTalent[0].data.data.ranks.current * 10;
         }
     }
 }
@@ -77,12 +77,16 @@ let d = new Dialog({
                         if (value.results.length <= 0) {
                             return;
                         }
-                            
+
                         var firstResult = value.results[0];
-                        var item = game.items.get(firstResult.resultId);
+                        var item = game.items.get(firstResult.data.resultId);
                         if (item != null) {
                             //Add injury to the selected chracter
-                        realActor.createOwnedItem(item);
+                            realActor.createEmbeddedDocuments("Item", [item.toObject()]);
+                            ChatMessage.create({
+                                speaker: { alias: realActor.name, token: realActor.id },
+                                content: item.data.data.description
+                            })
                         }
                     });
                 }

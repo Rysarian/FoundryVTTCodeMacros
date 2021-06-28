@@ -8,6 +8,8 @@ if (canvas.tokens.controlled.length === 2) {
   let xB = B.data.x;
   let yB = B.data.y;
 
-  A.update({ x: xB, y: yB }, { animate: false });
-  B.update({ x: xA, y: yA }, { animate: false });
+  canvas.scene.updateEmbeddedDocuments("Token", [
+      { _id: A.id, x: xB, y: yB },
+      { _id: B.id, x: xA, y: yA }
+  ], { animate: false });
 }

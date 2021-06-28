@@ -9,7 +9,7 @@ if (canvas.tokens.objects.children.length === 0) {
                 let _adversaryValue = 0, _defencemelee = 0, _defenceranged = 0, _soak = 0;
                 for (let talents of token.actor.data.items) {
                     if (talents.name == "Adversary") {
-                        _adversaryValue = talents.data.ranks.current;
+                        _adversaryValue = talents.data.data.ranks.current;
                     };
                 };
 

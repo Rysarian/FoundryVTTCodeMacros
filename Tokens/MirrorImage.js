@@ -1,6 +1,5 @@
+//Fixed by Freeze#2689 on Discord
 // Flips the selected token image along the Y axis.
 // Change mirrorY to mirrorX to flip across the X axis
-for (let token of canvas.tokens.controlled) {
-    let flip = !token.data.mirrorX || false;
-    token.data.update({ mirrorX: flip });
-};
+const updates = canvas.tokens.controlled.map(t => ({ _id: t.id, mirrorY: !t.data.mirrorY }));
+canvas.scene.updateEmbeddedDocuments("Token", updates);
